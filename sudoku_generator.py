@@ -1,5 +1,9 @@
-import math, random
+import math
+import random
+import pygame
+import sys
 
+# SudokuGenerator Class
 class SudokuGenerator:
     def __init__(self, row_length, removed_cells):
         self.row_length = row_length
@@ -84,9 +88,63 @@ class SudokuGenerator:
                 self.board[row][col] = 0
                 removed += 1
 
-def generate_sudoku(size, removed):
-    sudoku = SudokuGenerator(size, removed)
-    sudoku.fill_values()
-    board = sudoku.get_board()
-    sudoku.remove_cells()
-    return sudoku.get_board()
+# Cell Class
+class Cell:
+    def __init__(self, value, row, col, screen):
+        self.value = value
+        self.row = row
+        self.col = col
+        self.screen = screen
+        self.selected = False
+        self.sketched_value = None
+
+    def set_cell_value(self, value):
+        self.value = value
+
+    def set_sketched_value(self, value):
+        self.sketched_value = value
+
+    def draw(self):
+        font = pygame.font.Font(None, 50)
+        x = self.col * 60
+        y = self.row * 60
+
+        rect = pygame.Rect(x, y, 60, 60)
+        pygame.draw.rect(self.screen, (0, 0, 0), rect, 1)
+
+        if self.selected:
+            pygame.draw.rect(self.screen, (255, 0, 0), rect, 3)
+
+        if self.value != 0:
+            text = font.render(str(self.value), True, (0, 0, 0))
+            self.screen.blit(text, (x + 20, y + 15))
+        elif self.sketched_value:
+            text = font.render(str(self.sketched_value), True, (128, 128, 128))
+            self.screen.blit(text, (x + 5, y + 5))
+
+# Board Class
+class Board:
+    def __init__(self, width, height, screen, difficulty):
+        self.width = width
+        self.height = height
+        self.screen = screen
+        self.difficulty = difficulty
+        self.sudoku = SudokuGenerator(9, self.difficulty_to_cells())
+        self.sudoku.fill_values()
+        self.board = self.sudoku.get_board()
+        self.cells = [[Cell(self.board[row][col], row, col, screen) for col in range(9)] for row in range(9)]
+
+    def difficulty_to_cells(self):
+        return {"easy": 30, "medium": 40, "hard": 50}[self.difficulty]
+
+    def draw(self):
+        for row in self.cells:
+            for cell in row:
+                cell.draw()
+        self.draw_grid()
+
+    def draw_grid(self):
+        for i in range(10):
+            line_width = 4 if i % 3 == 0 else 1
+            pygame.draw.line(self.screen, (0, 0, 0), (0, i * 60), (540, i * 60), line_width)
+            pygame.draw.line(self.screen, (0, 0, 0), (i * 60, 0), (i * 60, 540), line_width)

@@ -1,6 +1,6 @@
 import pygame
 import sys
-from board import Board
+from sudoku_generator import Board
 
 def main():
     pygame.init()
@@ -8,7 +8,9 @@ def main():
     pygame.display.set_caption("Sudoku")
     clock = pygame.time.Clock()
     
-    board = Board(540, 540, screen, "easy")
+    # Initialize the Sudoku board
+    difficulty = "easy"  # Change to "medium" or "hard" for different difficulties
+    board = Board(540, 540, screen, difficulty)
 
     running = True
     while running:
